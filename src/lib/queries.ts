@@ -125,11 +125,11 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
 
     if (!error && data && data.length > 0) {
       return (data as TeamMember[]).map((m) => {
-        const local = fallback.find((l: TeamMember) => l.id === m.id || l.slug === m.slug);
+        const local = fallback.find((l: TeamMember) => l.id === m.id || l.name === m.name);
         return {
           ...local,
           ...m,
-          photo_url: m.photo_url || local?.photo_url || null,
+          image_url: m.image_url || local?.image_url || null,
         };
       });
     }
@@ -150,7 +150,7 @@ export async function getClients(): Promise<Client[]> {
 
     if (!error && data && data.length > 0) {
       return (data as Client[]).map((c) => {
-        const local = fallback.find((l: Client) => l.id === c.id || l.slug === c.slug);
+        const local = fallback.find((l: Client) => l.id === c.id || l.name === c.name);
         return {
           ...local,
           ...c,
