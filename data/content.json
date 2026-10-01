@@ -197,14 +197,6 @@
       "image_public_id": "maple-consulting/team/v50o6m2qiawwuswtqxcq",
       "display_order": 2,
       "is_active": true
-    },
-    {
-      "name": "Muhammed Shameer V.P.",
-      "designation": "Co-Founder",
-      "qualification": "M-Tech in Structural Engineering",
-      "display_order": 1,
-      "is_active": true,
-      "id": "team-1790861841577"
     }
   ],
   "clients": [],
@@ -214,8 +206,8 @@
       "name": "Commercial",
       "slug": "commercial",
       "description": "High-rise office towers, retail malls, and corporate headquarters.",
-      "cover_image_url": null,
-      "cover_image_public_id": null,
+      "cover_image_url": "https://res.cloudinary.com/i76hycoa/image/upload/v1790862991/maple-consulting/projects/yhvsisqvbnuxp4pvhxvi.jpg",
+      "cover_image_public_id": "maple-consulting/projects/yhvsisqvbnuxp4pvhxvi",
       "display_order": 1,
       "is_active": true
     },
@@ -224,8 +216,8 @@
       "name": "Hospital",
       "slug": "hospital",
       "description": "Multispecialty healthcare centers with vibration-sensitive medical wings.",
-      "cover_image_url": null,
-      "cover_image_public_id": null,
+      "cover_image_url": "https://res.cloudinary.com/i76hycoa/image/upload/v1790863026/maple-consulting/projects/co80kdqk5tfliw67nev7.jpg",
+      "cover_image_public_id": "maple-consulting/projects/co80kdqk5tfliw67nev7",
       "display_order": 2,
       "is_active": true
     },
@@ -234,8 +226,8 @@
       "name": "Educational",
       "slug": "educational",
       "description": "Academic blocks, large-span auditoriums, and campus infrastructure.",
-      "cover_image_url": null,
-      "cover_image_public_id": null,
+      "cover_image_url": "https://res.cloudinary.com/i76hycoa/image/upload/v1790863053/maple-consulting/projects/io5wv9yn7aunxw1imqfo.jpg",
+      "cover_image_public_id": "maple-consulting/projects/io5wv9yn7aunxw1imqfo",
       "display_order": 3,
       "is_active": true
     },
@@ -244,8 +236,8 @@
       "name": "Residential",
       "slug": "residential",
       "description": "Luxury villas, multi-story apartments, and gated townships.",
-      "cover_image_url": null,
-      "cover_image_public_id": null,
+      "cover_image_url": "https://res.cloudinary.com/i76hycoa/image/upload/v1790863069/maple-consulting/projects/pu0axhd48gpsbqnedsl4.jpg",
+      "cover_image_public_id": "maple-consulting/projects/pu0axhd48gpsbqnedsl4",
       "display_order": 4,
       "is_active": true
     },
@@ -254,8 +246,8 @@
       "name": "Others",
       "slug": "others",
       "description": "Special industrial sheds, warehouses, and infrastructure.",
-      "cover_image_url": null,
-      "cover_image_public_id": null,
+      "cover_image_url": "https://res.cloudinary.com/i76hycoa/image/upload/v1790863088/maple-consulting/projects/x1nvyyudmkmjwszdsmnc.jpg",
+      "cover_image_public_id": "maple-consulting/projects/x1nvyyudmkmjwszdsmnc",
       "display_order": 5,
       "is_active": true
     }
@@ -272,8 +264,8 @@
       "completion_year": "2025",
       "client_name": "Skyline Ventures",
       "scope_of_work": "Structural Design, Analysis & Detailing",
-      "cover_image_url": null,
-      "cover_image_public_id": null,
+      "cover_image_url": "https://res.cloudinary.com/i76hycoa/image/upload/v1790862991/maple-consulting/projects/yhvsisqvbnuxp4pvhxvi.jpg",
+      "cover_image_public_id": "maple-consulting/projects/yhvsisqvbnuxp4pvhxvi",
       "display_order": 1,
       "is_featured": true,
       "is_active": true
@@ -289,8 +281,8 @@
       "completion_year": "2024",
       "client_name": "CareTrust Healthcare",
       "scope_of_work": "Full Structural & Civil Engineering",
-      "cover_image_url": null,
-      "cover_image_public_id": null,
+      "cover_image_url": "https://res.cloudinary.com/i76hycoa/image/upload/v1790863026/maple-consulting/projects/co80kdqk5tfliw67nev7.jpg",
+      "cover_image_public_id": "maple-consulting/projects/co80kdqk5tfliw67nev7",
       "display_order": 2,
       "is_featured": true,
       "is_active": true
@@ -306,8 +298,8 @@
       "completion_year": "2025",
       "client_name": "Technical Education Trust",
       "scope_of_work": "Design & Site Supervision",
-      "cover_image_url": null,
-      "cover_image_public_id": null,
+      "cover_image_url": "https://res.cloudinary.com/i76hycoa/image/upload/v1790863053/maple-consulting/projects/io5wv9yn7aunxw1imqfo.jpg",
+      "cover_image_public_id": "maple-consulting/projects/io5wv9yn7aunxw1imqfo",
       "display_order": 3,
       "is_featured": true,
       "is_active": true
@@ -323,8 +315,8 @@
       "completion_year": "2024",
       "client_name": "Private Client",
       "scope_of_work": "RCC Structural Detailing",
-      "cover_image_url": null,
-      "cover_image_public_id": null,
+      "cover_image_url": "https://res.cloudinary.com/i76hycoa/image/upload/v1790863069/maple-consulting/projects/pu0axhd48gpsbqnedsl4.jpg",
+      "cover_image_public_id": "maple-consulting/projects/pu0axhd48gpsbqnedsl4",
       "display_order": 4,
       "is_featured": true,
       "is_active": true
@@ -340,8 +332,8 @@
       "completion_year": "2025",
       "client_name": "Logix Logistics Ltd",
       "scope_of_work": "Steel PEB Analysis & Foundation Design",
-      "cover_image_url": null,
-      "cover_image_public_id": null,
+      "cover_image_url": "https://res.cloudinary.com/i76hycoa/image/upload/v1790863088/maple-consulting/projects/x1nvyyudmkmjwszdsmnc.jpg",
+      "cover_image_public_id": "maple-consulting/projects/x1nvyyudmkmjwszdsmnc",
       "display_order": 5,
       "is_featured": true,
       "is_active": true

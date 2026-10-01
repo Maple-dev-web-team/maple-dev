@@ -115,6 +115,7 @@ export async function getServices(): Promise<Service[]> {
 }
 
 export async function getTeamMembers(): Promise<TeamMember[]> {
+  const fallback = getLocalFallback().team_members || [];
   try {
     const { data, error } = await publicSupabase
       .from("team_members")
@@ -122,18 +123,24 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
       .eq("is_active", true)
       .order("display_order", { ascending: true });
 
-    if (error || !data || data.length === 0) {
-      const fallback = getLocalFallback();
-      return fallback.team_members || [];
+    if (!error && data && data.length > 0) {
+      return (data as TeamMember[]).map((m) => {
+        const local = fallback.find((l: TeamMember) => l.id === m.id || l.slug === m.slug);
+        return {
+          ...local,
+          ...m,
+          photo_url: m.photo_url || local?.photo_url || null,
+        };
+      });
     }
-    return data;
   } catch {
-    const fallback = getLocalFallback();
-    return fallback.team_members || [];
+    // fallback
   }
+  return fallback;
 }
 
 export async function getClients(): Promise<Client[]> {
+  const fallback = getLocalFallback().clients || [];
   try {
     const { data, error } = await publicSupabase
       .from("clients")
@@ -141,18 +148,24 @@ export async function getClients(): Promise<Client[]> {
       .eq("is_active", true)
       .order("display_order", { ascending: true });
 
-    if (error || !data || data.length === 0) {
-      const fallback = getLocalFallback();
-      return fallback.clients || [];
+    if (!error && data && data.length > 0) {
+      return (data as Client[]).map((c) => {
+        const local = fallback.find((l: Client) => l.id === c.id || l.slug === c.slug);
+        return {
+          ...local,
+          ...c,
+          logo_url: c.logo_url || local?.logo_url || null,
+        };
+      });
     }
-    return data;
   } catch {
-    const fallback = getLocalFallback();
-    return fallback.clients || [];
+    // fallback
   }
+  return fallback;
 }
 
 export async function getProjectCategories(): Promise<ProjectCategory[]> {
+  const fallback = getLocalFallback().project_categories || [];
   try {
     const { data, error } = await publicSupabase
       .from("project_categories")
@@ -160,15 +173,21 @@ export async function getProjectCategories(): Promise<ProjectCategory[]> {
       .eq("is_active", true)
       .order("display_order", { ascending: true });
 
-    if (error || !data || data.length === 0) {
-      const fallback = getLocalFallback();
-      return fallback.project_categories || [];
+    if (!error && data && data.length > 0) {
+      return (data as ProjectCategory[]).map((c) => {
+        const local = fallback.find((l: ProjectCategory) => l.id === c.id || l.slug === c.slug);
+        return {
+          ...local,
+          ...c,
+          cover_image_url: c.cover_image_url || local?.cover_image_url || null,
+          cover_image_public_id: c.cover_image_public_id || local?.cover_image_public_id || null,
+        };
+      });
     }
-    return data;
   } catch {
-    const fallback = getLocalFallback();
-    return fallback.project_categories || [];
+    // fallback
   }
+  return fallback;
 }
 
 export async function getProjects(options?: {
@@ -176,6 +195,10 @@ export async function getProjects(options?: {
   categorySlug?: string;
   featuredOnly?: boolean;
 }): Promise<Project[]> {
+  const fallback = getLocalFallback();
+  const localProjects: Project[] = fallback.projects || [];
+  const cats: ProjectCategory[] = fallback.project_categories || [];
+
   try {
     let query = publicSupabase
       .from("projects")
@@ -193,30 +216,40 @@ export async function getProjects(options?: {
 
     const { data, error } = await query;
 
-    if (error || !data || data.length === 0) {
-      const fallback = getLocalFallback();
-      const allProjects: Project[] = fallback.projects || [];
-      const cats: ProjectCategory[] = fallback.project_categories || [];
-
-      const populated = allProjects.map((p) => ({
-        ...p,
-        category: cats.find((c) => c.id === p.category_id) || null,
-      }));
+    if (!error && data && data.length > 0) {
+      const merged = (data as unknown as Project[]).map((p) => {
+        const local = localProjects.find((l) => l.id === p.id || l.slug === p.slug);
+        return {
+          ...local,
+          ...p,
+          cover_image_url: p.cover_image_url || local?.cover_image_url || null,
+          cover_image_public_id: p.cover_image_public_id || local?.cover_image_public_id || null,
+        };
+      });
 
       if (options?.categorySlug) {
-        return populated.filter((p) => p.category?.slug === options.categorySlug);
+        return merged.filter((p) => p.category?.slug === options.categorySlug);
       }
-      if (options?.limit) {
-        return populated.slice(0, options.limit);
-      }
-      return populated;
+      return merged;
     }
-    return (data as unknown as Project[]) || [];
   } catch {
-    const fallback = getLocalFallback();
-    return fallback.projects || [];
+    // fallback
   }
+
+  const populated = localProjects.map((p) => ({
+    ...p,
+    category: cats.find((c) => c.id === p.category_id) || null,
+  }));
+
+  if (options?.categorySlug) {
+    return populated.filter((p) => p.category?.slug === options.categorySlug);
+  }
+  if (options?.limit) {
+    return populated.slice(0, options.limit);
+  }
+  return populated;
 }
+
 
 export async function getProjectBySlug(slug: string): Promise<Project | null> {
   try {

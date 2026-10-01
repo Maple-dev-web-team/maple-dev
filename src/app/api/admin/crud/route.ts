@@ -89,7 +89,22 @@ export async function POST(request: NextRequest) {
     }
 
     current[table] = list;
+
+    // If a project is saved with a cover image, ensure its category also has a cover image
+    if (table === "projects" && savedItem.category_id && savedItem.cover_image_url) {
+      const categories = (current["project_categories"] as Array<Record<string, unknown>>) || [];
+      const catIndex = categories.findIndex(
+        (c) => c.id === savedItem.category_id || c.slug === savedItem.category_id
+      );
+      if (catIndex >= 0) {
+        categories[catIndex].cover_image_url = savedItem.cover_image_url;
+        categories[catIndex].cover_image_public_id = savedItem.cover_image_public_id;
+        current["project_categories"] = categories;
+      }
+    }
+
     writeData(current);
+
 
     // Also attempt Supabase sync in background (non-blocking)
     try {

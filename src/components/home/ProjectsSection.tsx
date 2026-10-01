@@ -25,21 +25,38 @@ export function ProjectsSection({
   const ctaLabel = content?.projects_cta_label || "VIEW ALL PROJECTS";
   const ctaUrl = content?.projects_cta_url || "/projects";
 
-  // Use projects or categories to display the 5 cards
+  // Display 5 showcase cards: use category cover images, or automatically inherit from the matching project
   const displayItems =
     categories.length > 0
-      ? categories.slice(0, 5).map((cat) => ({
-          id: cat.id,
-          title: `${cat.name} Projects`,
-          href: `/projects?category=${cat.slug}`,
-          imageUrl: cat.cover_image_url,
-        }))
+      ? categories.slice(0, 5).map((cat, idx) => {
+          const matchingProject =
+            projects.find(
+              (p) =>
+                p.category_id === cat.id ||
+                p.category?.slug === cat.slug ||
+                p.category_id === cat.slug ||
+                p.category?.id === cat.id
+            ) || projects[idx];
+
+          const imageUrl =
+            cat.cover_image_url ||
+            matchingProject?.cover_image_url ||
+            null;
+
+          return {
+            id: cat.id,
+            title: `${cat.name} Projects`,
+            href: matchingProject ? `/projects/${matchingProject.slug}` : `/projects?category=${cat.slug}`,
+            imageUrl,
+          };
+        })
       : projects.slice(0, 5).map((proj) => ({
           id: proj.id,
           title: proj.title,
           href: `/projects/${proj.slug}`,
           imageUrl: proj.cover_image_url,
         }));
+
 
   return (
     <section id="projects" className="py-24 sm:py-32 bg-[#0a0b0d] text-white relative">
