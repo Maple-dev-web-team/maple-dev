@@ -1,26 +1,51 @@
 @import "tailwindcss";
 
+@theme {
+  --font-serif: var(--font-cormorant), "Times New Roman", serif;
+  --font-sans: var(--font-jakarta), system-ui, -apple-system, sans-serif;
+
+  --color-maple-dark: #0a0b0d;
+  --color-maple-charcoal: #121418;
+  --color-maple-surface: #181b22;
+  --color-maple-offwhite: #f7f6f2;
+  --color-maple-warmgray: #e9e7e0;
+  --color-maple-copper: #c47d48;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #f7f6f2;
+  --foreground: #121418;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom styling for editorial typography */
+.font-serif-display {
+  font-family: var(--font-serif);
+}
+
+.font-sans-clean {
+  font-family: var(--font-sans);
+}
+
+/* Fine architectural grid lines */
+.border-subtle-dark {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.border-subtle-light {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+/* Custom transitions and styling */
+::selection {
+  background-color: #121418;
+  color: #ffffff;
 }
