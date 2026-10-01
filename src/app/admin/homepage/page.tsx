@@ -24,6 +24,10 @@ export default function AdminHomepageEditor() {
     hero_vertical_text: "CIVIL & STRUCTURAL ENGINEERING",
     hero_image_url: null,
     hero_image_public_id: null,
+    hero_image_2_url: null,
+    hero_image_2_public_id: null,
+    hero_image_3_url: null,
+    hero_image_3_public_id: null,
 
     about_section_number: "01",
     about_eyebrow: "ABOUT US",
@@ -303,32 +307,128 @@ export default function AdminHomepageEditor() {
               />
             </div>
           </div>
+        </div>
 
-          <div>
-            <ImageUploader
-              label="Hero Architectural Background Image"
-              currentImageUrl={form.hero_image_url}
-              currentPublicId={form.hero_image_public_id}
-              folder="maple-consulting/hero"
-              aspectRatio="aspect-[16/10]"
-              onUploadSuccess={({ url, public_id }) => {
-                setForm({
-                  ...form,
-                  hero_image_url: url,
-                  hero_image_public_id: public_id,
-                });
-              }}
-              onRemove={() => {
-                setForm({
-                  ...form,
-                  hero_image_url: null,
-                  hero_image_public_id: null,
-                });
-              }}
-            />
+        {/* 3 HERO BANNER SLOTS (AUTO-SLIDESHOW) */}
+        <div className="pt-6 border-t border-black/10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+            <div>
+              <h3 className="text-xs font-mono uppercase tracking-[0.2em] font-semibold text-[#121418]">
+                Hero Banners (3 Slots — Auto-Slideshow)
+              </h3>
+              <p className="text-[11px] font-mono text-black/60 mt-0.5">
+                Upload up to 3 banner images. When 2 or 3 are added, the hero automatically cycles with cross-fade transitions.
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-black/5 text-[10px] font-mono uppercase tracking-wider text-black/70 border border-black/10 self-start">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Auto-Slide Active
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Slot 1: Primary Banner */}
+            <div className="space-y-2 p-3 bg-black/[0.015] border border-black/10">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#121418]">
+                  01. Primary Banner
+                </span>
+                <span className="text-[9px] font-mono text-emerald-700 bg-emerald-50 px-1.5 py-0.5 border border-emerald-200">
+                  Slide 1
+                </span>
+              </div>
+              <ImageUploader
+                label="Banner Slide 1"
+                currentImageUrl={form.hero_image_url}
+                currentPublicId={form.hero_image_public_id}
+                folder="maple-consulting/hero"
+                aspectRatio="aspect-[16/10]"
+                onUploadSuccess={({ url, public_id }) => {
+                  setForm({
+                    ...form,
+                    hero_image_url: url,
+                    hero_image_public_id: public_id,
+                  });
+                }}
+                onRemove={() => {
+                  setForm({
+                    ...form,
+                    hero_image_url: null,
+                    hero_image_public_id: null,
+                  });
+                }}
+              />
+            </div>
+
+            {/* Slot 2: Secondary Banner */}
+            <div className="space-y-2 p-3 bg-black/[0.015] border border-black/10">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#121418]">
+                  02. Second Banner
+                </span>
+                <span className="text-[9px] font-mono text-black/60 bg-black/5 px-1.5 py-0.5 border border-black/10">
+                  Slide 2
+                </span>
+              </div>
+              <ImageUploader
+                label="Banner Slide 2"
+                currentImageUrl={form.hero_image_2_url}
+                currentPublicId={form.hero_image_2_public_id}
+                folder="maple-consulting/hero"
+                aspectRatio="aspect-[16/10]"
+                onUploadSuccess={({ url, public_id }) => {
+                  setForm({
+                    ...form,
+                    hero_image_2_url: url,
+                    hero_image_2_public_id: public_id,
+                  });
+                }}
+                onRemove={() => {
+                  setForm({
+                    ...form,
+                    hero_image_2_url: null,
+                    hero_image_2_public_id: null,
+                  });
+                }}
+              />
+            </div>
+
+            {/* Slot 3: Tertiary Banner */}
+            <div className="space-y-2 p-3 bg-black/[0.015] border border-black/10">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#121418]">
+                  03. Third Banner
+                </span>
+                <span className="text-[9px] font-mono text-black/60 bg-black/5 px-1.5 py-0.5 border border-black/10">
+                  Slide 3
+                </span>
+              </div>
+              <ImageUploader
+                label="Banner Slide 3"
+                currentImageUrl={form.hero_image_3_url}
+                currentPublicId={form.hero_image_3_public_id}
+                folder="maple-consulting/hero"
+                aspectRatio="aspect-[16/10]"
+                onUploadSuccess={({ url, public_id }) => {
+                  setForm({
+                    ...form,
+                    hero_image_3_url: url,
+                    hero_image_3_public_id: public_id,
+                  });
+                }}
+                onRemove={() => {
+                  setForm({
+                    ...form,
+                    hero_image_3_url: null,
+                    hero_image_3_public_id: null,
+                  });
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
+
 
       {/* SECTION 2: ABOUT */}
       <div className="bg-white border border-black/10 p-6 sm:p-8 space-y-6">

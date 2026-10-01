@@ -26,6 +26,10 @@ export interface HomepageContent {
   hero_cta_url: string | null;
   hero_image_url: string | null;
   hero_image_public_id: string | null;
+  hero_image_2_url?: string | null;
+  hero_image_2_public_id?: string | null;
+  hero_image_3_url?: string | null;
+  hero_image_3_public_id?: string | null;
   hero_vertical_text: string | null;
   
   about_section_number: string | null;

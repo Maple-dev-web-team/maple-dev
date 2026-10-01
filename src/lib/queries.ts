@@ -66,6 +66,12 @@ export async function getHomepageContent(): Promise<HomepageContent | null> {
         hero_image_url: data.hero_image_url || fallback.hero_image_url || null,
         hero_image_public_id:
           data.hero_image_public_id || fallback.hero_image_public_id || null,
+        hero_image_2_url: data.hero_image_2_url || fallback.hero_image_2_url || null,
+        hero_image_2_public_id:
+          data.hero_image_2_public_id || fallback.hero_image_2_public_id || null,
+        hero_image_3_url: data.hero_image_3_url || fallback.hero_image_3_url || null,
+        hero_image_3_public_id:
+          data.hero_image_3_public_id || fallback.hero_image_3_public_id || null,
         about_image_url: data.about_image_url || fallback.about_image_url || null,
         about_image_public_id:
           data.about_image_public_id || fallback.about_image_public_id || null,
