@@ -3,13 +3,13 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MapleLogo } from "@/components/ui/MapleLogo";
-import { Lock, Mail, ArrowRight, Loader2, AlertCircle, Info } from "lucide-react";
+import { Lock, Mail, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
 
-  const [email, setEmail] = useState("admin@maple.com");
-  const [password, setPassword] = useState("maple@admin2026");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,7 +28,7 @@ export default function AdminLoginPage() {
       const data = await res.json();
 
       if (!res.ok || data.error) {
-        throw new Error(data.error || "Authentication failed. Check credentials in .env.local");
+        throw new Error(data.error || "Authentication failed. Check your credentials.");
       }
 
       // Login successful!
@@ -71,22 +71,8 @@ export default function AdminLoginPage() {
               Admin Sign In
             </h1>
             <p className="text-xs text-white/50 font-light mt-1">
-              Enter your administrative credentials configured in your environment
+              Enter your administrative credentials to continue
             </p>
-          </div>
-
-          {/* Quick Notice for configured env credentials */}
-          <div className="p-3 bg-white/5 border border-white/10 text-white/70 text-xs font-mono flex items-start gap-2.5">
-            <Info className="w-4 h-4 text-white/50 shrink-0 mt-0.5" />
-            <div className="space-y-1">
-              <div className="font-semibold text-white/90">Environment Credentials:</div>
-              <div className="text-[11px] text-white/60">
-                Email: <span className="text-white">admin@maple.com</span>
-              </div>
-              <div className="text-[11px] text-white/60">
-                Password: <span className="text-white">maple@admin2026</span>
-              </div>
-            </div>
           </div>
 
           {error && (
