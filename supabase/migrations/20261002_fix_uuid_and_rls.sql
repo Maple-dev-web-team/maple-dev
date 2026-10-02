@@ -245,3 +245,21 @@ ALTER TABLE public.project_images DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.branches DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.contact_submissions DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.social_links DISABLE ROW LEVEL SECURITY;
+
+-- Grant permissions to public/anon/authenticated roles
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated, service_role;
+
+-- Open policies as fallback in case RLS is ever re-enabled
+CREATE POLICY "open_site_settings" ON public.site_settings FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_homepage_content" ON public.homepage_content FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_services" ON public.services FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_team_members" ON public.team_members FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_clients" ON public.clients FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_project_categories" ON public.project_categories FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_projects" ON public.projects FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_project_images" ON public.project_images FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_branches" ON public.branches FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_contact_submissions" ON public.contact_submissions FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_social_links" ON public.social_links FOR ALL TO public USING (true) WITH CHECK (true);

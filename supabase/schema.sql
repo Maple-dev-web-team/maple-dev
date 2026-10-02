@@ -273,52 +273,33 @@ END $$;
 -- ==============================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- ==============================================================================
-ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.homepage_content ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.services ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.clients ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.project_categories ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.project_images ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.branches ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.contact_submissions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.social_links ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.site_settings DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.homepage_content DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.services DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.team_members DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.clients DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.project_categories DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.projects DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.project_images DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.branches DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.contact_submissions DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.social_links DISABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Public can view site settings" ON public.site_settings FOR SELECT USING (true);
-CREATE POLICY "Authenticated users can manage site settings" ON public.site_settings FOR ALL TO authenticated USING (true) WITH CHECK (true);
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated, service_role;
 
-CREATE POLICY "Public can view homepage content" ON public.homepage_content FOR SELECT USING (true);
-CREATE POLICY "Authenticated users can manage homepage content" ON public.homepage_content FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-CREATE POLICY "Public can view active services" ON public.services FOR SELECT USING (is_active = true);
-CREATE POLICY "Authenticated users can manage services" ON public.services FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-CREATE POLICY "Public can view active team members" ON public.team_members FOR SELECT USING (is_active = true);
-CREATE POLICY "Authenticated users can manage team members" ON public.team_members FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-CREATE POLICY "Public can view active clients" ON public.clients FOR SELECT USING (is_active = true);
-CREATE POLICY "Authenticated users can manage clients" ON public.clients FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-CREATE POLICY "Public can view active categories" ON public.project_categories FOR SELECT USING (is_active = true);
-CREATE POLICY "Authenticated users can manage categories" ON public.project_categories FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-CREATE POLICY "Public can view active projects" ON public.projects FOR SELECT USING (is_active = true);
-CREATE POLICY "Authenticated users can manage projects" ON public.projects FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-CREATE POLICY "Public can view project images" ON public.project_images FOR SELECT USING (
-    EXISTS (SELECT 1 FROM public.projects WHERE projects.id = project_images.project_id AND projects.is_active = true)
-);
-CREATE POLICY "Authenticated users can manage project images" ON public.project_images FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-CREATE POLICY "Public can view active branches" ON public.branches FOR SELECT USING (is_active = true);
-CREATE POLICY "Authenticated users can manage branches" ON public.branches FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-CREATE POLICY "Anyone can submit contact form" ON public.contact_submissions FOR INSERT WITH CHECK (true);
-CREATE POLICY "Authenticated users can view and manage contact submissions" ON public.contact_submissions FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-CREATE POLICY "Public can view active social links" ON public.social_links FOR SELECT USING (is_active = true);
-CREATE POLICY "Authenticated users can manage social links" ON public.social_links FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "open_site_settings" ON public.site_settings FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_homepage_content" ON public.homepage_content FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_services" ON public.services FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_team_members" ON public.team_members FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_clients" ON public.clients FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_project_categories" ON public.project_categories FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_projects" ON public.projects FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_project_images" ON public.project_images FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_branches" ON public.branches FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_contact_submissions" ON public.contact_submissions FOR ALL TO public USING (true) WITH CHECK (true);
+CREATE POLICY "open_social_links" ON public.social_links FOR ALL TO public USING (true) WITH CHECK (true);
 
 -- ==============================================================================
 -- INITIAL DEFAULT RECORDS (IF EMPTY)
