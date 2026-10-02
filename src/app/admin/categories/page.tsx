@@ -26,7 +26,9 @@ export default function AdminCategoriesPage() {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/crud?table=project_categories");
+      const res = await fetch("/api/admin/crud?table=project_categories", {
+        cache: "no-store",
+      });
       const json = await res.json();
       setCategories(json.data || []);
     } catch (err) {
@@ -246,18 +248,18 @@ export default function AdminCategoriesPage() {
                 folder="maple-consulting/categories"
                 aspectRatio="aspect-[16/9]"
                 onUploadSuccess={({ url, public_id }) => {
-                  setForm({
-                    ...form,
+                  setForm((prev) => ({
+                    ...prev,
                     cover_image_url: url,
                     cover_image_public_id: public_id,
-                  });
+                  }));
                 }}
                 onRemove={() => {
-                  setForm({
-                    ...form,
+                  setForm((prev) => ({
+                    ...prev,
                     cover_image_url: null,
                     cover_image_public_id: null,
-                  });
+                  }));
                 }}
               />
 

@@ -4,6 +4,9 @@ import path from "path";
 import { publicSupabase } from "@/lib/supabase/public";
 import { createClient } from "@supabase/supabase-js";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY
   ? createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL || "",

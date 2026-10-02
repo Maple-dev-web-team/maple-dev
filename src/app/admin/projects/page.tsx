@@ -36,8 +36,8 @@ export default function AdminProjectsPage() {
     setLoading(true);
     try {
       const [pRes, cRes] = await Promise.all([
-        fetch("/api/admin/crud?table=projects"),
-        fetch("/api/admin/crud?table=project_categories"),
+        fetch("/api/admin/crud?table=projects", { cache: "no-store" }),
+        fetch("/api/admin/crud?table=project_categories", { cache: "no-store" }),
       ]);
       const pJson = await pRes.json();
       const cJson = await cRes.json();
@@ -325,18 +325,18 @@ export default function AdminProjectsPage() {
                   folder="maple-consulting/projects"
                   aspectRatio="aspect-[16/9]"
                   onUploadSuccess={({ url, public_id }) => {
-                    setForm({
-                      ...form,
+                    setForm((prev) => ({
+                      ...prev,
                       cover_image_url: url,
                       cover_image_public_id: public_id,
-                    });
+                    }));
                   }}
                   onRemove={() => {
-                    setForm({
-                      ...form,
+                    setForm((prev) => ({
+                      ...prev,
                       cover_image_url: null,
                       cover_image_public_id: null,
-                    });
+                    }));
                   }}
                 />
               </div>

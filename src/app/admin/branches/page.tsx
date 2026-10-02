@@ -25,7 +25,9 @@ export default function AdminBranchesPage() {
   const fetchBranches = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/crud?table=branches");
+      const res = await fetch("/api/admin/crud?table=branches", {
+        cache: "no-store",
+      });
       const json = await res.json();
       setBranches(json.data || []);
     } catch (err) {

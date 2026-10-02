@@ -26,7 +26,9 @@ export default function AdminClientsPage() {
   const fetchClients = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/crud?table=clients");
+      const res = await fetch("/api/admin/crud?table=clients", {
+        cache: "no-store",
+      });
       const json = await res.json();
       setClients(json.data || []);
     } catch (err) {
@@ -234,18 +236,18 @@ export default function AdminClientsPage() {
                 folder="maple-consulting/clients"
                 aspectRatio="aspect-[16/9]"
                 onUploadSuccess={({ url, public_id }) => {
-                  setForm({
-                    ...form,
+                  setForm((prev) => ({
+                    ...prev,
                     logo_url: url,
                     logo_public_id: public_id,
-                  });
+                  }));
                 }}
                 onRemove={() => {
-                  setForm({
-                    ...form,
+                  setForm((prev) => ({
+                    ...prev,
                     logo_url: null,
                     logo_public_id: null,
-                  });
+                  }));
                 }}
               />
 

@@ -25,7 +25,9 @@ export default function AdminServicesPage() {
   const fetchServices = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/crud?table=services");
+      const res = await fetch("/api/admin/crud?table=services", {
+        cache: "no-store",
+      });
       const json = await res.json();
       setServices(json.data || []);
     } catch (err) {

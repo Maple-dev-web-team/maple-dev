@@ -31,7 +31,9 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     async function loadSettings() {
       try {
-        const res = await fetch("/api/admin/content?section=site_settings");
+        const res = await fetch("/api/admin/content?section=site_settings", {
+          cache: "no-store",
+        });
         const json = await res.json();
         if (json.site_settings) {
           setForm(json.site_settings);
@@ -62,22 +64,15 @@ export default function AdminSettingsPage() {
     setSuccess(false);
 
     try {
-      // 1. Save to local content
-      await fetch("/api/admin/content", {
+      const res = await fetch("/api/admin/content", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ section: "site_settings", payload: form }),
       });
 
-      // 2. Save to Supabase
-      try {
-        if (form.id && form.id !== "default-settings") {
-          await supabase.from("site_settings").update(form).eq("id", form.id);
-        } else {
-          await supabase.from("site_settings").insert([form]);
-        }
-      } catch (supaErr) {
-        console.warn("Supabase sync notice:", supaErr);
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || "Failed to save settings");
       }
 
       setSuccess(true);

@@ -60,7 +60,7 @@ export function TeamSection({ content, team = [] }: TeamSectionProps) {
                         alt={member.name}
                         fill
                         sizes="(max-width: 768px) 100vw, 33vw"
-                        className="object-cover object-top grayscale group-hover:grayscale-0 transition-all duration-500"
+                        className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center bg-[#1c202a] text-white/30 font-mono text-xs">

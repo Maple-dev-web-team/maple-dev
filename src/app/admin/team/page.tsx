@@ -28,7 +28,9 @@ export default function AdminTeamPage() {
   const fetchTeam = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/crud?table=team_members");
+      const res = await fetch("/api/admin/crud?table=team_members", {
+        cache: "no-store",
+      });
       const json = await res.json();
       setTeam(json.data || []);
     } catch (err) {
@@ -163,7 +165,7 @@ export default function AdminTeamPage() {
                       alt={member.name}
                       fill
                       sizes="350px"
-                      className="object-cover object-top grayscale hover:grayscale-0 transition-all duration-300"
+                      className="object-cover object-top transition-all duration-300"
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center text-white/30 font-mono text-xs">
@@ -259,18 +261,18 @@ export default function AdminTeamPage() {
                   folder="maple-consulting/team"
                   aspectRatio="aspect-[4/5]"
                   onUploadSuccess={({ url, public_id }) => {
-                    setForm({
-                      ...form,
+                    setForm((prev) => ({
+                      ...prev,
                       image_url: url,
                       image_public_id: public_id,
-                    });
+                    }));
                   }}
                   onRemove={() => {
-                    setForm({
-                      ...form,
+                    setForm((prev) => ({
+                      ...prev,
                       image_url: null,
                       image_public_id: null,
-                    });
+                    }));
                   }}
                 />
               </div>

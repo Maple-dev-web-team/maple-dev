@@ -90,8 +90,10 @@ export default function AdminHomepageEditor() {
   useEffect(() => {
     async function loadData() {
       try {
-        // Try local content API first or Supabase
-        const res = await fetch("/api/admin/content?section=homepage_content");
+        // Try content API first with cache: no-store
+        const res = await fetch("/api/admin/content?section=homepage_content", {
+          cache: "no-store",
+        });
         const json = await res.json();
         if (json.homepage_content) {
           setForm(json.homepage_content);
@@ -122,22 +124,15 @@ export default function AdminHomepageEditor() {
     setSuccess(false);
 
     try {
-      // 1. Always save to local content file for instant fallback persistence
-      await fetch("/api/admin/content", {
+      const res = await fetch("/api/admin/content", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ section: "homepage_content", payload: form }),
       });
 
-      // 2. Also save to Supabase if connected
-      try {
-        if (form.id && form.id !== "default-homepage") {
-          await supabase.from("homepage_content").update(form).eq("id", form.id);
-        } else {
-          await supabase.from("homepage_content").insert([form]);
-        }
-      } catch (supaErr) {
-        console.warn("Supabase sync notice:", supaErr);
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || "Failed to save homepage content");
       }
 
       setSuccess(true);
@@ -344,18 +339,18 @@ export default function AdminHomepageEditor() {
                 folder="maple-consulting/hero"
                 aspectRatio="aspect-[16/10]"
                 onUploadSuccess={({ url, public_id }) => {
-                  setForm({
-                    ...form,
+                  setForm((prev) => ({
+                    ...prev,
                     hero_image_url: url,
                     hero_image_public_id: public_id,
-                  });
+                  }));
                 }}
                 onRemove={() => {
-                  setForm({
-                    ...form,
+                  setForm((prev) => ({
+                    ...prev,
                     hero_image_url: null,
                     hero_image_public_id: null,
-                  });
+                  }));
                 }}
               />
             </div>
@@ -377,18 +372,18 @@ export default function AdminHomepageEditor() {
                 folder="maple-consulting/hero"
                 aspectRatio="aspect-[16/10]"
                 onUploadSuccess={({ url, public_id }) => {
-                  setForm({
-                    ...form,
+                  setForm((prev) => ({
+                    ...prev,
                     hero_image_2_url: url,
                     hero_image_2_public_id: public_id,
-                  });
+                  }));
                 }}
                 onRemove={() => {
-                  setForm({
-                    ...form,
+                  setForm((prev) => ({
+                    ...prev,
                     hero_image_2_url: null,
                     hero_image_2_public_id: null,
-                  });
+                  }));
                 }}
               />
             </div>
@@ -410,18 +405,18 @@ export default function AdminHomepageEditor() {
                 folder="maple-consulting/hero"
                 aspectRatio="aspect-[16/10]"
                 onUploadSuccess={({ url, public_id }) => {
-                  setForm({
-                    ...form,
+                  setForm((prev) => ({
+                    ...prev,
                     hero_image_3_url: url,
                     hero_image_3_public_id: public_id,
-                  });
+                  }));
                 }}
                 onRemove={() => {
-                  setForm({
-                    ...form,
+                  setForm((prev) => ({
+                    ...prev,
                     hero_image_3_url: null,
                     hero_image_3_public_id: null,
-                  });
+                  }));
                 }}
               />
             </div>
@@ -511,18 +506,18 @@ export default function AdminHomepageEditor() {
               folder="maple-consulting/about"
               aspectRatio="aspect-[4/3]"
               onUploadSuccess={({ url, public_id }) => {
-                setForm({
-                  ...form,
+                setForm((prev) => ({
+                  ...prev,
                   about_image_url: url,
                   about_image_public_id: public_id,
-                });
+                }));
               }}
               onRemove={() => {
-                setForm({
-                  ...form,
+                setForm((prev) => ({
+                  ...prev,
                   about_image_url: null,
                   about_image_public_id: null,
-                });
+                }));
               }}
             />
           </div>
@@ -560,18 +555,18 @@ export default function AdminHomepageEditor() {
               folder="maple-consulting/vision"
               aspectRatio="aspect-[16/10]"
               onUploadSuccess={({ url, public_id }) => {
-                setForm({
-                  ...form,
+                setForm((prev) => ({
+                  ...prev,
                   vision_image_url: url,
                   vision_image_public_id: public_id,
-                });
+                }));
               }}
               onRemove={() => {
-                setForm({
-                  ...form,
+                setForm((prev) => ({
+                  ...prev,
                   vision_image_url: null,
                   vision_image_public_id: null,
-                });
+                }));
               }}
             />
           </div>
@@ -662,18 +657,18 @@ export default function AdminHomepageEditor() {
               folder="maple-consulting/services"
               aspectRatio="aspect-[3/4]"
               onUploadSuccess={({ url, public_id }) => {
-                setForm({
-                  ...form,
+                setForm((prev) => ({
+                  ...prev,
                   services_image_url: url,
                   services_image_public_id: public_id,
-                });
+                }));
               }}
               onRemove={() => {
-                setForm({
-                  ...form,
+                setForm((prev) => ({
+                  ...prev,
                   services_image_url: null,
                   services_image_public_id: null,
-                });
+                }));
               }}
             />
           </div>
@@ -686,18 +681,18 @@ export default function AdminHomepageEditor() {
               folder="maple-consulting/services"
               aspectRatio="aspect-[2/3]"
               onUploadSuccess={({ url, public_id }) => {
-                setForm({
-                  ...form,
+                setForm((prev) => ({
+                  ...prev,
                   services_secondary_image_url: url,
                   services_secondary_image_public_id: public_id,
-                });
+                }));
               }}
               onRemove={() => {
-                setForm({
-                  ...form,
+                setForm((prev) => ({
+                  ...prev,
                   services_secondary_image_url: null,
                   services_secondary_image_public_id: null,
-                });
+                }));
               }}
             />
           </div>

@@ -19,6 +19,9 @@ export const metadata = {
     "Explore our structural engineering and civil consultancy projects across commercial, hospital, educational, and residential sectors.",
 };
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function ProjectsPage({
   searchParams,
 }: {

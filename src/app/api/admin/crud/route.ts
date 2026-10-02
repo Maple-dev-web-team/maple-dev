@@ -4,6 +4,9 @@ import path from "path";
 import { publicSupabase } from "@/lib/supabase/public";
 import { createClient } from "@supabase/supabase-js";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const dataFilePath = path.join(process.cwd(), "data", "content.json");
 
 // Service client if service role key is provided, else fallback to public
@@ -55,7 +58,10 @@ export async function GET(request: NextRequest) {
       .order("display_order", { ascending: true });
 
     if (!error && data && data.length > 0) {
-      return NextResponse.json({ data });
+      return NextResponse.json(
+        { data },
+        { headers: { "Cache-Control": "no-store, no-cache, must-revalidate" } }
+      );
     }
   } catch (supaErr) {
     console.warn(`Supabase fetch notice for ${table}:`, supaErr);
@@ -65,7 +71,10 @@ export async function GET(request: NextRequest) {
   const localData = readData();
   const list = (localData[table] as unknown[]) || [];
 
-  return NextResponse.json({ data: list });
+  return NextResponse.json(
+    { data: list },
+    { headers: { "Cache-Control": "no-store, no-cache, must-revalidate" } }
+  );
 }
 
 export async function POST(request: NextRequest) {

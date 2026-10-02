@@ -4,6 +4,9 @@ import path from "path";
 import { publicSupabase } from "@/lib/supabase/public";
 import { createClient } from "@supabase/supabase-js";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const dataFilePath = path.join(process.cwd(), "data", "content.json");
 
 const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -52,7 +55,10 @@ export async function GET(request: NextRequest) {
         .maybeSingle();
 
       if (!error && data) {
-        return NextResponse.json({ [section]: data });
+        return NextResponse.json(
+          { [section]: data },
+          { headers: { "Cache-Control": "no-store, no-cache, must-revalidate" } }
+        );
       }
     } catch (supaErr) {
       console.warn(`Supabase get notice for ${section}:`, supaErr);
@@ -60,11 +66,16 @@ export async function GET(request: NextRequest) {
 
     // 2. Fallback to local content file
     const localData = readData();
-    return NextResponse.json({ [section]: localData[section] || null });
+    return NextResponse.json(
+      { [section]: localData[section] || null },
+      { headers: { "Cache-Control": "no-store, no-cache, must-revalidate" } }
+    );
   }
 
   const localData = readData();
-  return NextResponse.json(localData);
+  return NextResponse.json(localData, {
+    headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+  });
 }
 
 export async function POST(request: NextRequest) {

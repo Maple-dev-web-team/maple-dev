@@ -27,6 +27,10 @@ export function ImageUploader({
   const [error, setError] = useState("");
   const [preview, setPreview] = useState<string | null>(currentImageUrl || null);
 
+  React.useEffect(() => {
+    setPreview(currentImageUrl || null);
+  }, [currentImageUrl]);
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
