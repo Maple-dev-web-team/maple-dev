@@ -230,7 +230,7 @@ export default function AdminClientsPage() {
 
             <form onSubmit={handleSave} className="space-y-4">
               <ImageUploader
-                label="Client Logo (Cloudinary)"
+                label="Client Logo"
                 currentImageUrl={form.logo_url}
                 currentPublicId={form.logo_public_id}
                 folder="maple-consulting/clients"

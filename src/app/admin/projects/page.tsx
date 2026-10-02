@@ -319,7 +319,7 @@ export default function AdminProjectsPage() {
             <form onSubmit={handleSave} className="space-y-4">
               <div>
                 <ImageUploader
-                  label="Cover Architectural Photography (Cloudinary)"
+                  label="Cover Architectural Photography"
                   currentImageUrl={form.cover_image_url}
                   currentPublicId={form.cover_image_public_id}
                   folder="maple-consulting/projects"

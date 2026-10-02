@@ -125,7 +125,7 @@ export function ImageUploader({
           </div>
           <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/70 text-[10px] font-mono text-emerald-400 flex items-center gap-1">
             <CheckCircle className="w-3 h-3" />
-            Cloudinary Ready
+            Uploaded &amp; Ready
           </div>
         </div>
       ) : (
@@ -133,7 +133,7 @@ export function ImageUploader({
           {isUploading ? (
             <div className="flex flex-col items-center gap-2 text-black/60">
               <Loader2 className="w-6 h-6 animate-spin text-black" />
-              <span className="text-xs font-mono">Uploading to Cloudinary...</span>
+              <span className="text-xs font-mono">Uploading image...</span>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2 text-black/50">

@@ -242,7 +242,7 @@ export default function AdminCategoriesPage() {
 
             <form onSubmit={handleSave} className="space-y-4">
               <ImageUploader
-                label="Category Showcase Cover (Cloudinary)"
+                label="Category Showcase Cover"
                 currentImageUrl={form.cover_image_url}
                 currentPublicId={form.cover_image_public_id}
                 folder="maple-consulting/categories"

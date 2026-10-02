@@ -165,7 +165,7 @@ export default function AdminHomepageEditor() {
             Homepage Content &amp; Media Editor
           </h1>
           <p className="text-xs text-black/60 font-mono mt-1">
-            Customise editorial headlines, statements, and Cloudinary photographic assets
+            Customise editorial headlines, statements, and photographic assets
           </p>
         </div>
 

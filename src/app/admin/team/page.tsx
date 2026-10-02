@@ -255,7 +255,7 @@ export default function AdminTeamPage() {
             <form onSubmit={handleSave} className="space-y-4">
               <div>
                 <ImageUploader
-                  label="Portrait Photography (Cloudinary)"
+                  label="Portrait Photography"
                   currentImageUrl={form.image_url}
                   currentPublicId={form.image_public_id}
                   folder="maple-consulting/team"

@@ -175,24 +175,24 @@ export default function AdminSettingsPage() {
 
           <div>
             <ImageUploader
-              label="Custom Brand Logo (Cloudinary)"
+              label="Custom Brand Logo"
               currentImageUrl={form.logo_url}
               currentPublicId={form.logo_public_id}
               folder="maple-consulting/logo"
               aspectRatio="aspect-[16/9]"
               onUploadSuccess={({ url, public_id }) => {
-                setForm({
-                  ...form,
+                setForm((prev) => ({
+                  ...prev,
                   logo_url: url,
                   logo_public_id: public_id,
-                });
+                }));
               }}
               onRemove={() => {
-                setForm({
-                  ...form,
+                setForm((prev) => ({
+                  ...prev,
                   logo_url: null,
                   logo_public_id: null,
-                });
+                }));
               }}
             />
             <p className="text-[10px] text-black/40 mt-1 font-mono">

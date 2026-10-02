@@ -16,11 +16,7 @@ import {
   Database,
   Cloud,
   CheckCircle2,
-  Copy,
-  Check,
   RefreshCw,
-  ExternalLink,
-  AlertCircle,
   Loader2,
 } from "lucide-react";
 
@@ -43,7 +39,6 @@ export default function AdminDashboardPage() {
     enquiries: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [copiedSql, setCopiedSql] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
   const supabase = createClient();
@@ -85,18 +80,6 @@ export default function AdminDashboardPage() {
     loadStats();
   }, [loadStats]);
 
-  const handleCopySql = async () => {
-    try {
-      const res = await fetch("/api/admin/sql");
-      const text = await res.text();
-      await navigator.clipboard.writeText(text);
-      setCopiedSql(true);
-      setTimeout(() => setCopiedSql(false), 3000);
-    } catch {
-      alert("Please copy from supabase/migrations/20261002_fix_uuid_and_rls.sql");
-    }
-  };
-
   const handleSyncData = async () => {
     setSyncing(true);
     setSyncMessage(null);
@@ -106,11 +89,11 @@ export default function AdminDashboardPage() {
       if (!res.ok || json.error) {
         throw new Error(json.error || "Sync failed");
       }
-      setSyncMessage("Success: All content synced to Supabase database!");
+      setSyncMessage("Success: All content published and synchronized across the live site!");
       loadStats();
     } catch (err: unknown) {
       const e = err as Error;
-      setSyncMessage(`Sync notice: ${e.message}`);
+      setSyncMessage(`Notice: ${e.message}`);
     } finally {
       setSyncing(false);
     }
@@ -185,10 +168,10 @@ export default function AdminDashboardPage() {
             </div>
             <div>
               <div className="text-xs font-semibold text-[#121418]">
-                Supabase PostgreSQL
+                Content Database
               </div>
               <div className="text-[11px] font-mono text-black/50">
-                Connected: xoxghjnzilytsonuvkih
+                Synchronized &amp; Live
               </div>
             </div>
           </div>
@@ -205,10 +188,10 @@ export default function AdminDashboardPage() {
             </div>
             <div>
               <div className="text-xs font-semibold text-[#121418]">
-                Cloudinary Asset Storage
+                Media Asset Storage
               </div>
               <div className="text-[11px] font-mono text-black/50">
-                Connected: i76hycoa
+                High-Speed CDN Delivery
               </div>
             </div>
           </div>
@@ -219,96 +202,48 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Cloud Database Setup & Sync Helper */}
-      <div className="p-6 bg-[#121418] text-white border border-black/20 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
-          <div>
-            <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/50 mb-1">
-              Production Persistence &amp; Database Sync
-            </div>
-            <h3 className="text-base font-serif font-normal text-white">
-              Cloud Database (Supabase) Setup &amp; Live Sync
-            </h3>
-            <p className="text-xs text-white/60 font-mono mt-1">
-              Enable full end-to-end CMS editing on both localhost and Vercel production
-            </p>
+      {/* Quick Publishing & Sync */}
+      <div className="p-5 bg-white border border-black/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="text-xs font-semibold text-[#121418]">
+            Content Publishing &amp; Live Synchronization
           </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleCopySql}
-              className="inline-flex items-center gap-2 px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-mono uppercase tracking-wider transition-colors border border-white/20"
-              title="Copy SQL migration script to clipboard"
-            >
-              {copiedSql ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copiedSql ? "Copied SQL!" : "Copy SQL Script"}</span>
-            </button>
-
-            <button
-              type="button"
-              disabled={syncing}
-              onClick={handleSyncData}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white text-black hover:bg-white/90 text-xs font-mono uppercase tracking-wider font-bold transition-colors disabled:opacity-50"
-            >
-              {syncing ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Syncing...</span>
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  <span>Sync All Data to Cloud</span>
-                </>
-              )}
-            </button>
+          <div className="text-xs text-black/50 mt-0.5">
+            Publish and synchronize all homepage sections, services, team members, and project media across the live website.
           </div>
         </div>
 
-        {syncMessage && (
-          <div
-            className={`p-3 text-xs font-mono border ${
-              syncMessage.includes("Success")
-                ? "bg-emerald-950/60 border-emerald-500/40 text-emerald-300"
-                : "bg-amber-950/60 border-amber-500/40 text-amber-300"
-            }`}
-          >
-            {syncMessage}
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono text-white/70 pt-1">
-          <div className="p-3 bg-white/[0.03] border border-white/10 space-y-1.5">
-            <div className="text-white font-semibold flex items-center gap-2">
-              <span className="w-4 h-4 rounded-full bg-white/10 text-center text-[10px] leading-4 text-white">1</span>
-              <span>Execute SQL Migration in Supabase</span>
-            </div>
-            <p className="text-[11px] text-white/50 leading-relaxed">
-              Click &quot;Copy SQL Script&quot;, open your{" "}
-              <a
-                href="https://supabase.com/dashboard/project/xoxghjnzilytsonuvkih/sql/new"
-                target="_blank"
-                rel="noreferrer"
-                className="text-white underline inline-flex items-center gap-1 hover:text-white/80"
-              >
-                Supabase SQL Editor <ExternalLink className="w-3 h-3 inline" />
-              </a>
-              , paste and click <strong>Run</strong>. This allows string IDs and enables cloud CMS updates.
-            </p>
-          </div>
-
-          <div className="p-3 bg-white/[0.03] border border-white/10 space-y-1.5">
-            <div className="text-white font-semibold flex items-center gap-2">
-              <span className="w-4 h-4 rounded-full bg-white/10 text-center text-[10px] leading-4 text-white">2</span>
-              <span>Click &quot;Sync All Data to Cloud&quot;</span>
-            </div>
-            <p className="text-[11px] text-white/50 leading-relaxed">
-              Pushes all 10 services, 2 team members, projects, categories, settings, and hero slide images into the cloud database so changes persist on Vercel main.
-            </p>
-          </div>
-        </div>
+        <button
+          type="button"
+          disabled={syncing}
+          onClick={handleSyncData}
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#121418] hover:bg-black text-white text-xs font-mono uppercase tracking-wider font-bold transition-colors disabled:opacity-50 shrink-0 self-start sm:self-auto"
+        >
+          {syncing ? (
+            <>
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <span>Synchronizing...</span>
+            </>
+          ) : (
+            <>
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Publish Live Updates</span>
+            </>
+          )}
+        </button>
       </div>
+
+      {syncMessage && (
+        <div
+          className={`p-3 text-xs font-mono border ${
+            syncMessage.includes("Success")
+              ? "bg-emerald-50 border-emerald-300 text-emerald-800"
+              : "bg-amber-50 border-amber-300 text-amber-800"
+          }`}
+        >
+          {syncMessage}
+        </div>
+      )}
 
       {/* Stats Metric Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
