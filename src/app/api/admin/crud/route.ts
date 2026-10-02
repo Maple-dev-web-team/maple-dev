@@ -47,7 +47,21 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Table name required" }, { status: 400 });
   }
 
-  // 1. Try local data first for fast response
+  // 1. Try Supabase first (cloud database for production)
+  try {
+    const { data, error } = await supabaseAdmin
+      .from(table)
+      .select("*")
+      .order("display_order", { ascending: true });
+
+    if (!error && data && data.length > 0) {
+      return NextResponse.json({ data });
+    }
+  } catch (supaErr) {
+    console.warn(`Supabase fetch notice for ${table}:`, supaErr);
+  }
+
+  // 2. Fallback to local content file
   const localData = readData();
   const list = (localData[table] as unknown[]) || [];
 
@@ -103,21 +117,30 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Save to local file if writable
     writeData(current);
 
-
-    // Also attempt Supabase sync in background (non-blocking)
+    // Sync to Supabase cloud database with upsert
+    let supaNotice: string | null = null;
     try {
-      if (id) {
-        await supabaseAdmin.from(table).update(item).eq("id", id);
-      } else {
-        await supabaseAdmin.from(table).insert([savedItem]);
+      const { error: supaErr } = await supabaseAdmin
+        .from(table)
+        .upsert([savedItem], { onConflict: "id" });
+
+      if (supaErr) {
+        console.warn(`Supabase upsert notice for ${table}:`, supaErr.message);
+        supaNotice = supaErr.message;
       }
-    } catch (supaErr) {
-      console.warn(`Supabase sync notice for ${table}:`, supaErr);
+    } catch (err: unknown) {
+      const e = err as Error;
+      supaNotice = e.message;
     }
 
-    return NextResponse.json({ success: true, data: savedItem });
+    return NextResponse.json({
+      success: true,
+      data: savedItem,
+      supabaseNotice: supaNotice,
+    });
   } catch (error: unknown) {
     const err = error as Error;
     return NextResponse.json({ error: err.message }, { status: 500 });
@@ -142,7 +165,7 @@ export async function DELETE(request: NextRequest) {
     current[table] = list.filter((x) => x.id !== id);
     writeData(current);
 
-    // Also try Supabase delete
+    // Also delete from Supabase
     try {
       await supabaseAdmin.from(table).delete().eq("id", id);
     } catch (supaErr) {

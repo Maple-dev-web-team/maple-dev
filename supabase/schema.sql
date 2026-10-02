@@ -17,7 +17,7 @@ $$ LANGUAGE plpgsql;
 
 -- 1. SITE SETTINGS TABLE
 CREATE TABLE IF NOT EXISTS public.site_settings (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
     company_name TEXT NOT NULL DEFAULT 'Maple Consulting Engineers',
     tagline TEXT DEFAULT 'Civil & Structural Engineering Consultancy',
     logo_url TEXT,

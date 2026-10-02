@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { publicSupabase } from "@/lib/supabase/public";
+import { createClient } from "@supabase/supabase-js";
 
 const dataFilePath = path.join(process.cwd(), "data", "content.json");
 
-function readData() {
+const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    )
+  : publicSupabase;
+
+function readData(): Record<string, unknown> {
   try {
     if (fs.existsSync(dataFilePath)) {
       return JSON.parse(fs.readFileSync(dataFilePath, "utf-8"));
@@ -32,13 +41,30 @@ function writeData(data: Record<string, unknown>) {
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const section = searchParams.get("section");
-  const data = readData();
 
   if (section) {
-    return NextResponse.json({ [section]: data[section] || null });
+    // 1. Try Supabase cloud database first
+    try {
+      const { data, error } = await supabaseAdmin
+        .from(section)
+        .select("*")
+        .limit(1)
+        .maybeSingle();
+
+      if (!error && data) {
+        return NextResponse.json({ [section]: data });
+      }
+    } catch (supaErr) {
+      console.warn(`Supabase get notice for ${section}:`, supaErr);
+    }
+
+    // 2. Fallback to local content file
+    const localData = readData();
+    return NextResponse.json({ [section]: localData[section] || null });
   }
 
-  return NextResponse.json(data);
+  const localData = readData();
+  return NextResponse.json(localData);
 }
 
 export async function POST(request: NextRequest) {
@@ -56,6 +82,19 @@ export async function POST(request: NextRequest) {
     const current = readData();
     current[section] = payload;
     writeData(current);
+
+    // Sync to Supabase cloud database
+    try {
+      if (payload.id) {
+        await supabaseAdmin
+          .from(section)
+          .upsert([payload], { onConflict: "id" });
+      } else {
+        await supabaseAdmin.from(section).upsert([payload]);
+      }
+    } catch (supaErr) {
+      console.warn(`Supabase content sync notice for ${section}:`, supaErr);
+    }
 
     return NextResponse.json({ success: true, [section]: payload });
   } catch (error: unknown) {
