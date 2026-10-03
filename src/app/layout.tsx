@@ -115,6 +115,9 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  verification: {
+    google: "qI1_mVrvGx267mVjHj4TvNfg8OsUtV47FmoLosnG4AA",
+  },
   category: "engineering",
 };
 
@@ -129,6 +132,10 @@ export default function RootLayout({
       className={`${cormorant.variable} ${jakarta.variable} scroll-smooth antialiased`}
     >
       <head>
+        <meta
+          name="google-site-verification"
+          content="qI1_mVrvGx267mVjHj4TvNfg8OsUtV47FmoLosnG4AA"
+        />
         <JsonLd />
       </head>
       <body className="min-h-screen bg-[#f7f6f2] text-[#121418] flex flex-col font-sans">
