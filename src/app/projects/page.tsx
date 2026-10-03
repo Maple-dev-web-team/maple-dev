@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { ArrowUpRight } from "lucide-react";
+import type { Metadata } from "next";
 import {
   getSiteSettings,
   getProjects,
@@ -13,10 +14,27 @@ import {
   getBranches,
 } from "@/lib/queries";
 
-export const metadata = {
-  title: "Projects Portfolio | Maple Consulting Engineers",
+export const metadata: Metadata = {
+  title: "Projects Portfolio",
   description:
-    "Explore our structural engineering and civil consultancy projects across commercial, hospital, educational, and residential sectors.",
+    "Explore our civil and structural engineering projects portfolio. Engineering case studies in commercial complexes, multispecialty hospitals, academic campus blocks, residential villas, and PEB industrial hubs across Calicut, Kochi, Palakkad, and Bengaluru.",
+  alternates: {
+    canonical: "https://maplece.com/projects",
+  },
+  openGraph: {
+    title: "Projects Portfolio | Maple Consulting Engineers",
+    description:
+      "Explore our civil and structural engineering projects portfolio across commercial, healthcare, educational, and industrial sectors.",
+    url: "https://maplece.com/projects",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Maple Consulting Engineers - Projects Portfolio",
+      },
+    ],
+  },
 };
 
 export const dynamic = "force-dynamic";
@@ -43,8 +61,31 @@ export default async function ProjectsPage({
     ? allProjects.filter((p) => p.category?.slug === categoryFilter)
     : allProjects;
 
+  const breadcrumbsSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://maplece.com",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Projects Portfolio",
+        item: "https://maplece.com/projects",
+      },
+    ],
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-[#0a0b0d] text-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsSchema) }}
+      />
       <Header settings={settings} />
 
       <main className="flex-1 pt-36 pb-24">

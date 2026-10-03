@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import type { Metadata } from "next";
 import { ArrowLeft, ArrowUpRight, MapPin, Calendar, Building, Layers } from "lucide-react";
 import {
   getSiteSettings,
@@ -17,16 +18,39 @@ export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
-}) {
+}): Promise<Metadata> {
   const resolved = await params;
   const project = await getProjectBySlug(resolved.slug);
-  if (!project) return { title: "Project Not Found | Maple Consulting Engineers" };
+  if (!project) return { title: "Project Not Found" };
+
+  const projectUrl = `https://maplece.com/projects/${project.slug}`;
+  const description =
+    project.short_description ||
+    `${project.title} - Civil & Structural Engineering project by Maple Consulting Engineers in ${project.location || "India"}.`;
+
+  const ogImages = project.cover_image_url
+    ? [{ url: project.cover_image_url, width: 1200, height: 675, alt: project.title }]
+    : [{ url: "/og-image.jpg", width: 1200, height: 630, alt: project.title }];
 
   return {
-    title: `${project.title} | Maple Consulting Engineers`,
-    description:
-      project.short_description ||
-      `Engineering case study for ${project.title} by Maple Consulting Engineers.`,
+    title: project.title,
+    description,
+    alternates: {
+      canonical: projectUrl,
+    },
+    openGraph: {
+      title: `${project.title} | Maple Consulting Engineers`,
+      description,
+      url: projectUrl,
+      type: "article",
+      images: ogImages,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${project.title} | Maple Consulting Engineers`,
+      description,
+      images: [project.cover_image_url || "/og-image.jpg"],
+    },
   };
 }
 
@@ -56,8 +80,59 @@ export default async function ProjectDetailPage({
     .filter((p) => p.id !== project.id)
     .slice(0, 3);
 
+  const projectSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: "https://maplece.com",
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Projects",
+            item: "https://maplece.com/projects",
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: project.title,
+            item: `https://maplece.com/projects/${project.slug}`,
+          },
+        ],
+      },
+      {
+        "@type": "CreativeWork",
+        "@id": `https://maplece.com/projects/${project.slug}#project`,
+        name: project.title,
+        headline: project.title,
+        description: project.short_description || project.description,
+        image: project.cover_image_url || "https://maplece.com/og-image.jpg",
+        creator: {
+          "@type": "Organization",
+          name: "Maple Consulting Engineers",
+          url: "https://maplece.com",
+        },
+        locationCreated: {
+          "@type": "Place",
+          name: project.location || "India",
+        },
+        ...(project.completion_year && { dateCreated: project.completion_year }),
+      },
+    ],
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-[#0a0b0d] text-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(projectSchema) }}
+      />
       <Header settings={settings} />
 
       <main className="flex-1 pt-32 pb-24">
