@@ -1,9 +1,7 @@
 // Cryptographic authentication utilities compatible with Edge and Serverless runtimes
 
 const AUTH_SECRET =
-  process.env.ADMIN_PASSWORD ||
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  "maple_secure_fallback_salt_2026";
+  process.env.ADMIN_PASSWORD || "maple_secure_auth_secret_2026";
 
 async function getHmacKey(): Promise<CryptoKey> {
   const enc = new TextEncoder();
@@ -23,29 +21,49 @@ function bufferToHex(buf: ArrayBuffer): string {
     .join("");
 }
 
+function toBase64Url(str: string): string {
+  return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function fromBase64Url(b64: string): string {
+  let str = b64.replace(/-/g, "+").replace(/_/g, "/");
+  while (str.length % 4) str += "=";
+  return atob(str);
+}
+
 export async function createAdminSessionToken(email: string): Promise<string> {
   const enc = new TextEncoder();
   const timestamp = Date.now().toString();
-  const payload = `${email}:${timestamp}`;
+  const payloadJson = JSON.stringify({ email: email.toLowerCase(), ts: timestamp });
+  const payloadB64 = toBase64Url(payloadJson);
   const key = await getHmacKey();
-  const signature = await crypto.subtle.sign("HMAC", key, enc.encode(payload));
+  const signature = await crypto.subtle.sign("HMAC", key, enc.encode(payloadB64));
   const hexSig = bufferToHex(signature);
-  return `${payload}.${hexSig}`;
+  return `${payloadB64}.${hexSig}`;
 }
 
 export async function verifyAdminSessionToken(
-  token: string | null | undefined
+  rawToken: string | null | undefined
 ): Promise<boolean> {
-  if (!token || typeof token !== "string") return false;
+  if (!rawToken || typeof rawToken !== "string") return false;
 
+  // Clean and decode any cookie URL-encoding
+  const token = decodeURIComponent(rawToken).trim();
   const parts = token.split(".");
   if (parts.length !== 2) return false;
 
-  const [payload, signatureHex] = parts;
-  const [email, timestampStr] = payload.split(":");
-  if (!email || !timestampStr) return false;
+  const [payloadB64, signatureHex] = parts;
+  if (!payloadB64 || !signatureHex) return false;
 
-  const timestamp = parseInt(timestampStr, 10);
+  let timestamp: number;
+  try {
+    const payloadRaw = fromBase64Url(payloadB64);
+    const parsed = JSON.parse(payloadRaw);
+    timestamp = parseInt(parsed.ts, 10);
+  } catch {
+    return false;
+  }
+
   if (isNaN(timestamp)) return false;
 
   // Max age: 7 days
@@ -57,7 +75,7 @@ export async function verifyAdminSessionToken(
   try {
     const enc = new TextEncoder();
     const key = await getHmacKey();
-    const expectedSigBuf = await crypto.subtle.sign("HMAC", key, enc.encode(payload));
+    const expectedSigBuf = await crypto.subtle.sign("HMAC", key, enc.encode(payloadB64));
     const expectedHex = bufferToHex(expectedSigBuf);
 
     // Constant-time string comparison to avoid timing attacks
