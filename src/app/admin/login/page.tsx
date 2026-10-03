@@ -94,8 +94,7 @@ export default function AdminLoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@maple.com"
-                  className="w-full pl-10 pr-4 py-2.5 bg-black/50 border border-white/15 text-xs text-white placeholder-white/20 focus:outline-none focus:border-white transition-colors"
+                  className="w-full pl-10 pr-4 py-2.5 bg-black/50 border border-white/15 text-xs text-white focus:outline-none focus:border-white transition-colors"
                 />
               </div>
             </div>
@@ -111,8 +110,7 @@ export default function AdminLoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="w-full pl-10 pr-4 py-2.5 bg-black/50 border border-white/15 text-xs text-white placeholder-white/20 focus:outline-none focus:border-white transition-colors"
+                  className="w-full pl-10 pr-4 py-2.5 bg-black/50 border border-white/15 text-xs text-white focus:outline-none focus:border-white transition-colors"
                 />
               </div>
             </div>
