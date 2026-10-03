@@ -97,19 +97,29 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen bg-[#f3f2ee] text-[#121418] flex flex-col lg:flex-row font-sans">
       {/* Mobile Top Bar */}
-      <div className="lg:hidden bg-[#0a0b0d] text-white p-4 flex items-center justify-between border-b border-white/10">
+      <div className="lg:hidden bg-[#0a0b0d] text-white p-4 flex items-center justify-between border-b border-white/10 sticky top-0 z-30">
         <MapleLogo variant="light" size="sm" isLink={false} />
         <button
           onClick={() => setMobileNavOpen(!mobileNavOpen)}
-          className="p-1.5 text-white/80 hover:text-white"
+          className="p-1.5 text-white/80 hover:text-white cursor-pointer"
+          aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
         >
           {mobileNavOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
 
+      {/* Mobile Backdrop Overlay */}
+      {mobileNavOpen && (
+        <div
+          onClick={() => setMobileNavOpen(false)}
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs lg:hidden transition-opacity"
+          aria-hidden="true"
+        />
+      )}
+
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-[#0a0b0d] text-white flex flex-col justify-between p-6 transition-transform duration-300 lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#0a0b0d] text-white flex flex-col justify-between p-6 transition-transform duration-300 lg:static lg:translate-x-0 ${
           mobileNavOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
