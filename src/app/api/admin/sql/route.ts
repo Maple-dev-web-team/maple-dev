@@ -1,11 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { verifyAdminSessionToken } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const sessionCookie = request.cookies.get("maple_admin_session")?.value;
+    const isAuth = await verifyAdminSessionToken(sessionCookie);
+    if (!isAuth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const sqlPath = path.join(
       process.cwd(),
       "supabase",

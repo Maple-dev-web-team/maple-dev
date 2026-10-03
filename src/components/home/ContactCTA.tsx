@@ -21,13 +21,13 @@ export function ContactCTA({ content, settings, branches = [] }: ContactCTAProps
     content?.contact_highlight_text || "Wherever!\nWhenever!\nTogether with you.";
   const bgImageUrl = content?.contact_image_url;
 
-  // Form state
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     message: "",
   });
+  const [honeypot, setHoneypot] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -36,6 +36,16 @@ export function ContactCTA({ content, settings, branches = [] }: ContactCTAProps
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMessage("");
+
+    // Anti-Spam: Silent drop for automated bots filling invisible fields
+    if (honeypot) {
+      setTimeout(() => {
+        setSubmitted(true);
+        setIsSubmitting(false);
+        setFormData({ name: "", email: "", phone: "", message: "" });
+      }, 500);
+      return;
+    }
 
     try {
       const { error } = await publicSupabase.from("contact_submissions").insert([
@@ -50,7 +60,6 @@ export function ContactCTA({ content, settings, branches = [] }: ContactCTAProps
 
       if (error) {
         console.warn("Contact submission notice:", error.message);
-        // Fallback friendly alert if table is being migrated
       }
 
       setSubmitted(true);
@@ -107,6 +116,18 @@ export function ContactCTA({ content, settings, branches = [] }: ContactCTAProps
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4 max-w-lg">
+                  {/* Anti-Spam Bot Trap: hidden from real human visitors */}
+                  <div className="hidden" aria-hidden="true">
+                    <input
+                      type="text"
+                      name="preferred_contact_check"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={honeypot}
+                      onChange={(e) => setHoneypot(e.target.value)}
+                    />
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <input
                       type="text"

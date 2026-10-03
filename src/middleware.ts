@@ -1,27 +1,54 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { updateSession } from "@/utils/supabase/middleware";
+import { verifyAdminSessionToken } from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const adminCookie = request.cookies.get("maple_admin_session")?.value;
-  const isEnvAdmin = adminCookie === "authenticated_admin";
+  const isAuthenticated = await verifyAdminSessionToken(adminCookie);
 
-  // If already logged in via env admin and visiting /admin/login -> redirect to dashboard
-  if (pathname === "/admin/login" && isEnvAdmin) {
+  // 1. Guard API Admin endpoints (except /api/admin/auth/*)
+  if (
+    pathname.startsWith("/api/admin") &&
+    !pathname.startsWith("/api/admin/auth")
+  ) {
+    if (!isAuthenticated) {
+      return NextResponse.json(
+        { error: "Unauthorized access: Valid administrator session required" },
+        { status: 401 }
+      );
+    }
+    return NextResponse.next();
+  }
+
+  // 2. Guard Cloudinary media management API endpoints
+  if (pathname.startsWith("/api/cloudinary")) {
+    if (!isAuthenticated) {
+      return NextResponse.json(
+        { error: "Unauthorized access: Valid administrator session required" },
+        { status: 401 }
+      );
+    }
+    return NextResponse.next();
+  }
+
+  // 3. If already logged in and visiting /admin/login -> redirect to dashboard
+  if (pathname === "/admin/login" && isAuthenticated) {
     const url = request.nextUrl.clone();
     url.pathname = "/admin/dashboard";
     return NextResponse.redirect(url);
   }
 
-  // If accessing protected /admin route and logged in via env admin -> allow through directly
+  // 4. Guard protected /admin UI pages (except /admin/login)
   if (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) {
-    if (isEnvAdmin) {
-      return NextResponse.next();
+    if (!isAuthenticated) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/admin/login";
+      return NextResponse.redirect(url);
     }
+    return NextResponse.next();
   }
 
-  // Otherwise, fallback to Supabase session refresh and auth checks
-  return await updateSession(request);
+  return NextResponse.next();
 }
 
 export const config = {

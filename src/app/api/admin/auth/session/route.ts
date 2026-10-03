@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifyAdminSessionToken } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   const sessionCookie = request.cookies.get("maple_admin_session");
-  const isAuthenticated = sessionCookie?.value === "authenticated_admin";
+  const isAuthenticated = await verifyAdminSessionToken(sessionCookie?.value);
 
   return NextResponse.json({
     authenticated: isAuthenticated,

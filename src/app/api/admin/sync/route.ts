@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { publicSupabase } from "@/lib/supabase/public";
 import { createClient } from "@supabase/supabase-js";
+import { verifyAdminSessionToken } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -14,8 +15,13 @@ const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY
     )
   : publicSupabase;
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
+    const sessionCookie = request.cookies.get("maple_admin_session")?.value;
+    const isAuth = await verifyAdminSessionToken(sessionCookie);
+    if (!isAuth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const dataFilePath = path.join(process.cwd(), "data", "content.json");
     if (!fs.existsSync(dataFilePath)) {
       return NextResponse.json({ error: "content.json not found" }, { status: 404 });

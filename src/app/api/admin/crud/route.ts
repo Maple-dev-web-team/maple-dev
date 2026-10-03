@@ -30,14 +30,18 @@ function readData(): Record<string, unknown[]> {
 
 function writeData(data: Record<string, unknown>) {
   try {
+    if (process.env.NODE_ENV === "production") {
+      // In serverless edge environments (Vercel), the local filesystem is read-only.
+      // Supabase cloud database handles production persistence.
+      return true;
+    }
     const dir = path.dirname(dataFilePath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
     fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2), "utf-8");
     return true;
-  } catch (err) {
-    console.error("Error writing content.json:", err);
+  } catch {
     return false;
   }
 }
