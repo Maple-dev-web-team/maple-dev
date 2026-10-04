@@ -21,11 +21,23 @@ export function ClientsSection({ content, clients = [] }: ClientsSectionProps) {
     return null;
   }
 
+  // Ensure there are enough items to comfortably span across any screen width before looping
+  const repeatedList =
+    clients.length < 10
+      ? Array.from({ length: Math.ceil(10 / clients.length) }, () => clients).flat()
+      : clients;
+
+  // Duplicate the list once so the second half seamlessly replaces the first at -50% translateX
+  const marqueeItems = [...repeatedList, ...repeatedList];
+
+  // Dynamic pacing: ~2.2s per card creates a relaxed, premium architectural tempo (~110px/s)
+  const duration = Math.max(25, repeatedList.length * 2.2);
+
   return (
-    <section id="clients" className="py-20 sm:py-28 bg-[#f7f6f2] text-[#121418] border-b border-black/10">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8">
-        {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 sm:mb-16 gap-4">
+    <section id="clients" className="py-20 sm:py-28 bg-[#f7f6f2] text-[#121418] border-b border-black/10 overflow-hidden">
+      {/* Section Header */}
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 mb-10 sm:mb-14">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
             <SectionLabel number={sectionNumber} label={eyebrow} theme="light" />
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#121418] font-normal tracking-tight mt-3">
@@ -36,34 +48,75 @@ export function ClientsSection({ content, clients = [] }: ClientsSectionProps) {
             {tagline}
           </div>
         </div>
+      </div>
 
-        {/* 6-Column Grid of Logos with Fine Dividers */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 divide-y sm:divide-y-0 divide-x divide-black/10 border-y border-black/10">
-          {clients.map((client) => (
-            <div
-              key={client.id}
-              className="py-10 px-6 flex flex-col items-center justify-center text-center group transition-colors hover:bg-black/[0.02]"
-            >
-              <div className="relative h-12 w-28 mb-3 flex items-center justify-center">
-                {client.logo_url ? (
-                  <Image
-                    src={client.logo_url}
-                    alt={client.name}
-                    fill
-                    sizes="120px"
-                    className="object-contain grayscale opacity-60 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-300"
-                  />
-                ) : (
-                  <span className="font-mono text-xs text-black/40">{client.name}</span>
-                )}
+      {/* Straight Full-Width Horizontal Auto-Scrolling Ribbon */}
+      <div className="relative w-full border-y border-black/10 bg-[#f7f6f2] py-2 overflow-hidden">
+        {/* Left Edge Gradient Fade */}
+        <div
+          className="pointer-events-none absolute left-0 top-0 bottom-0 w-20 sm:w-36 z-10 bg-gradient-to-r from-[#f7f6f2] via-[#f7f6f2]/80 to-transparent"
+          aria-hidden="true"
+        />
+
+        {/* Marquee Track */}
+        <div
+          className="animate-marquee flex items-center"
+          style={{ "--marquee-duration": `${duration}s` } as React.CSSProperties}
+        >
+          {marqueeItems.map((client, index) => {
+            const cardContent = (
+              <div className="w-52 sm:w-64 shrink-0 h-32 sm:h-36 px-6 sm:px-8 flex flex-col items-center justify-center text-center border-r border-black/10 group transition-colors hover:bg-black/[0.02]">
+                <div className="relative h-12 sm:h-14 w-28 sm:w-36 mb-2.5 flex items-center justify-center">
+                  {client.logo_url ? (
+                    <Image
+                      src={client.logo_url}
+                      alt={client.name}
+                      fill
+                      sizes="(max-width: 640px) 120px, 160px"
+                      className="object-contain opacity-100 group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <span className="font-mono text-xs uppercase tracking-wider text-black/50">
+                      {client.name}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-[0.2em] text-black/60 group-hover:text-black transition-colors line-clamp-1">
+                  {client.name}
+                </span>
               </div>
-              <span className="text-[11px] font-mono uppercase tracking-wider text-black/40 group-hover:text-black/80 transition-colors">
-                {client.name}
-              </span>
-            </div>
-          ))}
+            );
+
+            if (client.website_url) {
+              return (
+                <a
+                  key={`${client.id}-${index}`}
+                  href={client.website_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block shrink-0 focus:outline-none focus-visible:ring-1 focus-visible:ring-black"
+                  title={client.name}
+                >
+                  {cardContent}
+                </a>
+              );
+            }
+
+            return (
+              <div key={`${client.id}-${index}`} className="shrink-0">
+                {cardContent}
+              </div>
+            );
+          })}
         </div>
+
+        {/* Right Edge Gradient Fade */}
+        <div
+          className="pointer-events-none absolute right-0 top-0 bottom-0 w-20 sm:w-36 z-10 bg-gradient-to-l from-[#f7f6f2] via-[#f7f6f2]/80 to-transparent"
+          aria-hidden="true"
+        />
       </div>
     </section>
   );
 }
+
