@@ -169,7 +169,13 @@ export function Footer({ settings, services = [], branches = [] }: FooterProps) 
             {settings?.copyright_text ||
               `© ${currentYear} Maple Consulting Engineers. All rights reserved.`}
           </div>
-          <div>
+          <div className="flex items-center gap-6">
+            <Link
+              href="/privacy-policy"
+              className="text-xs text-white/40 hover:text-white transition-colors"
+            >
+              Privacy Policy
+            </Link>
             <a
               href="https://ekodrix.com"
               target="_blank"
