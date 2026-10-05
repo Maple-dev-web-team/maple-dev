@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Security Guard: Whitelist image MIME types
+    // Security Guard: Whitelist image MIME types and file extensions (handles WhatsApp octet-stream downloads)
     const ALLOWED_MIME_TYPES = [
       "image/jpeg",
       "image/png",
@@ -29,17 +29,33 @@ export async function POST(request: NextRequest) {
       "image/gif",
       "image/avif",
     ];
-    if (file.type && !ALLOWED_MIME_TYPES.includes(file.type)) {
+    const fileExt = file.name.split(".").pop()?.toLowerCase() || "";
+    const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "svg", "gif", "avif"];
+
+    const isValidMime = file.type && ALLOWED_MIME_TYPES.includes(file.type);
+    const isValidExt = ALLOWED_EXTENSIONS.includes(fileExt);
+
+    if (!isValidMime && !isValidExt) {
       return NextResponse.json(
         { error: "Invalid file format. Only JPEG, PNG, WebP, SVG, and GIF images are allowed." },
         { status: 400 }
       );
     }
 
+    // Determine normalized MIME type
+    let mimeType = file.type;
+    if (!mimeType || mimeType === "application/octet-stream" || !ALLOWED_MIME_TYPES.includes(mimeType)) {
+      if (fileExt === "jpg" || fileExt === "jpeg") mimeType = "image/jpeg";
+      else if (fileExt === "png") mimeType = "image/png";
+      else if (fileExt === "webp") mimeType = "image/webp";
+      else if (fileExt === "gif") mimeType = "image/gif";
+      else if (fileExt === "svg") mimeType = "image/svg+xml";
+      else mimeType = "image/jpeg";
+    }
+
     // Convert file to base64
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const mimeType = file.type || "image/jpeg";
     const base64Data = `data:${mimeType};base64,${buffer.toString("base64")}`;
 
     const result = await uploadToCloudinary(base64Data, folder);

@@ -31,76 +31,79 @@ export function ImageUploader({
     setPreview(currentImageUrl || null);
   }, [currentImageUrl]);
 
-  // Helper to compress oversized camera photos client-side (e.g. 5-15MB phone photos down to < 2MB)
-  const prepareImageForUpload = async (file: File): Promise<File | Blob> => {
-    if (file.size <= 2.5 * 1024 * 1024 || file.type === "image/svg+xml" || file.type === "image/gif") {
+  // Robust client-side optimizer: handles high-res architectural renders (e.g. 5-20MB DSLR/3D renders down to < 1.5MB)
+  const prepareImageForUpload = async (file: File): Promise<Blob | File> => {
+    // SVGs and GIFs should be uploaded untouched
+    if (file.type === "image/svg+xml" || file.type === "image/gif") {
       return file;
     }
 
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new window.Image();
-        img.onload = () => {
-          let width = img.width;
-          let height = img.height;
-          const maxDim = 2400; // High-res 4K clarity
+    // Use URL.createObjectURL (instant, zero-memory overhead, avoids FileReader memory exhaustion on 5MB+ JPEGs)
+    const objectUrl = URL.createObjectURL(file);
 
-          if (width > maxDim || height > maxDim) {
-            if (width > height) {
-              height = Math.round((height * maxDim) / width);
-              width = maxDim;
-            } else {
-              width = Math.round((width * maxDim) / height);
-              height = maxDim;
-            }
-          }
+    try {
+      const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const image = new window.Image();
+        image.onload = () => resolve(image);
+        image.onerror = (e) => reject(e);
+        image.src = objectUrl;
+      });
 
-          const canvas = document.createElement("canvas");
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          if (!ctx) {
-            resolve(file);
-            return;
-          }
+      const maxDim = 2400; // Razor-sharp 4K maximum dimension (avoids Cloudinary 25MP free tier limits)
+      let { width, height } = img;
 
-          ctx.drawImage(img, 0, 0, width, height);
-          canvas.toBlob(
-            (blob) => {
-              if (blob && blob.size < file.size) {
-                const compressedFile = new File(
-                  [blob],
-                  file.name.replace(/\.[^/.]+$/, ".jpg"),
-                  {
-                    type: "image/jpeg",
-                    lastModified: Date.now(),
-                  }
-                );
-                resolve(compressedFile);
-              } else {
-                resolve(file);
-              }
-            },
-            "image/jpeg",
-            0.85
-          );
-        };
-        img.onerror = () => resolve(file);
-        img.src = e.target?.result as string;
-      };
-      reader.onerror = () => resolve(file);
-      reader.readAsDataURL(file);
-    });
+      // If dimensions are reasonable and file is small, keep original
+      if (width <= maxDim && height <= maxDim && file.size <= 2 * 1024 * 1024) {
+        URL.revokeObjectURL(objectUrl);
+        return file;
+      }
+
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        URL.revokeObjectURL(objectUrl);
+        return file;
+      }
+
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(objectUrl);
+
+      const blob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob(resolve, "image/jpeg", 0.85);
+      });
+
+      if (blob && blob.size > 0 && blob.size < file.size) {
+        return blob;
+      }
+      return file;
+    } catch (err) {
+      URL.revokeObjectURL(objectUrl);
+      console.warn("Client-side image optimizer fallback:", err);
+      return file;
+    }
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate size (max 25MB before compression)
-    if (file.size > 25 * 1024 * 1024) {
-      setError("File exceeds 25MB limit. Please select a smaller image.");
+    // Validate size (allow up to 35MB before compression)
+    if (file.size > 35 * 1024 * 1024) {
+      setError("File exceeds 35MB limit. Please select a smaller image.");
       return;
     }
 
@@ -108,10 +111,12 @@ export function ImageUploader({
     setError("");
 
     try {
-      // 1. Optimize oversized photos (drops 8MB down to ~1MB while preserving 4K resolution)
-      const uploadableFile = await prepareImageForUpload(file);
+      // 1. Optimize oversized photos (converts 5-20MB raw/renderings down to ~800KB-1.5MB in < 200ms)
+      const uploadableBlob = await prepareImageForUpload(file);
+      const cleanFileName = file.name.replace(/\.[^/.]+$/, ".jpg");
 
-      // 2. Primary Method: Direct Signed Cloudinary Upload (bypasses Vercel's 4.5MB serverless payload limit)
+      // 2. Primary Method: Direct Signed Cloudinary Upload (bypasses Vercel's 4.5MB serverless limit)
+      let directUploadError: string | null = null;
       try {
         const sigRes = await fetch("/api/cloudinary/signature", {
           method: "POST",
@@ -120,17 +125,11 @@ export function ImageUploader({
         });
 
         if (sigRes.ok) {
-          const sigText = await sigRes.text();
-          let sigData;
-          try {
-            sigData = JSON.parse(sigText);
-          } catch {
-            sigData = null;
-          }
+          const sigData = await sigRes.json().catch(() => null);
 
           if (sigData && sigData.signature && sigData.apiKey && sigData.cloudName) {
             const cloudFormData = new FormData();
-            cloudFormData.append("file", uploadableFile);
+            cloudFormData.append("file", uploadableBlob, cleanFileName);
             cloudFormData.append("api_key", sigData.apiKey);
             cloudFormData.append("timestamp", String(sigData.timestamp));
             cloudFormData.append("signature", sigData.signature);
@@ -144,16 +143,11 @@ export function ImageUploader({
               }
             );
 
-            const cloudText = await cloudRes.text();
-            let cloudData;
-            try {
-              cloudData = JSON.parse(cloudText);
-            } catch {
-              throw new Error(`Cloudinary returned status ${cloudRes.status}`);
-            }
+            const cloudData = await cloudRes.json().catch(() => null);
 
-            if (!cloudRes.ok || cloudData.error) {
-              throw new Error(cloudData.error?.message || "Upload to Cloudinary failed");
+            if (!cloudRes.ok || cloudData?.error) {
+              const msg = cloudData?.error?.message || `Cloudinary rejected upload (${cloudRes.status})`;
+              throw new Error(msg);
             }
 
             setPreview(cloudData.secure_url);
@@ -163,14 +157,27 @@ export function ImageUploader({
             });
             return;
           }
+        } else {
+          directUploadError = "Could not initialize secure cloud upload.";
         }
-      } catch (directErr) {
-        console.warn("Direct upload fallback triggered:", directErr);
+      } catch (err: unknown) {
+        const directErr = err as Error;
+        directUploadError = directErr.message || "Direct upload failed";
+        // If Cloudinary explicitly rejected the upload (e.g. resolution limit, quota, invalid file), show exact message
+        if (
+          directUploadError.includes("resolution") ||
+          directUploadError.includes("exceeds") ||
+          directUploadError.includes("format") ||
+          directUploadError.includes("Invalid") ||
+          directUploadError.includes("Cloudinary")
+        ) {
+          throw new Error(directUploadError);
+        }
       }
 
-      // 3. Fallback Method: Server route upload with safe response parsing
+      // 3. Fallback Method: Server route upload with optimized payload
       const formData = new FormData();
-      formData.append("file", uploadableFile);
+      formData.append("file", uploadableBlob, cleanFileName);
       formData.append("folder", folder);
 
       const res = await fetch("/api/cloudinary/upload", {
@@ -184,13 +191,13 @@ export function ImageUploader({
         data = JSON.parse(text);
       } catch {
         if (res.status === 413 || text.includes("Request Entity Too Large")) {
-          throw new Error("Image file is too large for serverless transfer. Please compress it or select a smaller image.");
+          throw new Error("File exceeds serverless transfer size. Please upload a compressed image.");
         }
         throw new Error(`Server error (${res.status}): ${text.slice(0, 100)}`);
       }
 
       if (!res.ok || data.error) {
-        throw new Error(data.error || "Failed to upload image");
+        throw new Error(data.error || directUploadError || "Failed to upload image");
       }
 
       setPreview(data.secure_url);
@@ -200,7 +207,7 @@ export function ImageUploader({
       });
     } catch (err: unknown) {
       const error = err as Error;
-      setError(error.message || "Upload failed");
+      setError(error.message || "Upload failed. Please check image format.");
     } finally {
       setIsUploading(false);
     }
