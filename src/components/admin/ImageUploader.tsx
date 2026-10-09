@@ -12,6 +12,8 @@ interface ImageUploaderProps {
   onUploadSuccess: (data: { url: string; public_id: string }) => void;
   onRemove?: () => void;
   aspectRatio?: string;
+  objectFit?: "cover" | "contain";
+  bgDark?: boolean;
 }
 
 export function ImageUploader({
@@ -22,6 +24,8 @@ export function ImageUploader({
   onUploadSuccess,
   onRemove,
   aspectRatio = "aspect-[16/9]",
+  objectFit = "cover",
+  bgDark = false,
 }: ImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState("");
@@ -82,8 +86,16 @@ export function ImageUploader({
       ctx.drawImage(img, 0, 0, width, height);
       URL.revokeObjectURL(objectUrl);
 
+      const isPng = file.type === "image/png" || file.name.toLowerCase().endsWith(".png");
+      const isSvg = file.type === "image/svg+xml" || file.name.toLowerCase().endsWith(".svg");
+      if (isSvg) {
+        URL.revokeObjectURL(objectUrl);
+        return file;
+      }
+
+      const mimeType = isPng ? "image/png" : "image/jpeg";
       const blob = await new Promise<Blob | null>((resolve) => {
-        canvas.toBlob(resolve, "image/jpeg", 0.85);
+        canvas.toBlob(resolve, mimeType, isPng ? undefined : 0.85);
       });
 
       if (blob && blob.size > 0 && blob.size < file.size) {
@@ -111,9 +123,12 @@ export function ImageUploader({
     setError("");
 
     try {
-      // 1. Optimize oversized photos (converts 5-20MB raw/renderings down to ~800KB-1.5MB in < 200ms)
+      // 1. Optimize oversized photos (preserves PNG transparency for logos)
       const uploadableBlob = await prepareImageForUpload(file);
-      const cleanFileName = file.name.replace(/\.[^/.]+$/, ".jpg");
+      const isPng = file.type === "image/png" || file.name.toLowerCase().endsWith(".png");
+      const isSvg = file.type === "image/svg+xml" || file.name.toLowerCase().endsWith(".svg");
+      const ext = isPng ? ".png" : isSvg ? ".svg" : ".jpg";
+      const cleanFileName = file.name.replace(/\.[^/.]+$/, ext);
 
       // 2. Primary Method: Direct Signed Cloudinary Upload (bypasses Vercel's 4.5MB serverless limit)
       let directUploadError: string | null = null;
@@ -236,13 +251,21 @@ export function ImageUploader({
       </label>
 
       {preview ? (
-        <div className={`relative ${aspectRatio} w-full overflow-hidden bg-black/5 border border-black/15 group`}>
+        <div
+          className={`relative ${aspectRatio} w-full overflow-hidden ${
+            bgDark ? "bg-[#0a0b0d] p-3" : "bg-black/5"
+          } border border-black/15 group`}
+        >
           <Image
             src={preview}
             alt={label}
             fill
             sizes="400px"
-            className="object-cover object-center"
+            className={`${
+              objectFit === "contain"
+                ? "object-contain object-center p-2"
+                : "object-cover object-center"
+            }`}
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
             <label className="cursor-pointer px-3 py-1.5 bg-white text-black text-xs font-mono uppercase tracking-wider hover:bg-white/90">

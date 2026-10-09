@@ -179,7 +179,9 @@ export default function AdminSettingsPage() {
               currentImageUrl={form.logo_url}
               currentPublicId={form.logo_public_id}
               folder="maple-consulting/logo"
-              aspectRatio="aspect-[16/9]"
+              aspectRatio="aspect-[16/6]"
+              objectFit="contain"
+              bgDark={true}
               onUploadSuccess={({ url, public_id }) => {
                 setForm((prev) => ({
                   ...prev,

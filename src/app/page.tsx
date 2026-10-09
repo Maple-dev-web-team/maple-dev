@@ -40,7 +40,7 @@ export default async function HomePage() {
     getTeamMembers(),
     getClients(),
     getProjectCategories(),
-    getProjects({ limit: 6 }),
+    getProjects(),
     getBranches(),
   ]);
 

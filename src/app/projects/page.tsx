@@ -57,8 +57,14 @@ export default async function ProjectsPage({
       getBranches(),
     ]);
 
+  const activeCat = categories.find((c) => c.slug === categoryFilter);
   const filteredProjects = categoryFilter
-    ? allProjects.filter((p) => p.category?.slug === categoryFilter)
+    ? allProjects.filter(
+        (p) =>
+          p.category?.slug === categoryFilter ||
+          p.category_id === categoryFilter ||
+          (activeCat && p.category_id === activeCat.id)
+      )
     : allProjects;
 
   const breadcrumbsSchema = {

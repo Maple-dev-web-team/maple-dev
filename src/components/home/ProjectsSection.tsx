@@ -28,15 +28,14 @@ export function ProjectsSection({
   // Display 5 showcase cards: use category cover images, or automatically inherit from the matching project
   const displayItems =
     categories.length > 0
-      ? categories.slice(0, 5).map((cat, idx) => {
-          const matchingProject =
-            projects.find(
-              (p) =>
-                p.category_id === cat.id ||
-                p.category?.slug === cat.slug ||
-                p.category_id === cat.slug ||
-                p.category?.id === cat.id
-            ) || projects[idx];
+      ? categories.slice(0, 5).map((cat) => {
+          const matchingProject = projects.find(
+            (p) =>
+              p.category_id === cat.id ||
+              p.category?.slug === cat.slug ||
+              p.category_id === cat.slug ||
+              p.category?.id === cat.id
+          );
 
           const imageUrl =
             cat.cover_image_url ||
@@ -45,8 +44,8 @@ export function ProjectsSection({
 
           return {
             id: cat.id,
-            title: `${cat.name} Projects`,
-            href: matchingProject ? `/projects/${matchingProject.slug}` : `/projects?category=${cat.slug}`,
+            title: `${cat.name.trim()} Projects`,
+            href: `/projects?category=${cat.slug}`,
             imageUrl,
           };
         })

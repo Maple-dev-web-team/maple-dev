@@ -57,7 +57,7 @@ export default function AdminLoginPage() {
         {/* Brand Header */}
         <div className="text-center mb-10 space-y-3">
           <div className="inline-block">
-            <MapleLogo variant="light" size="md" isLink={false} />
+            <MapleLogo variant="light" size="md" align="center" isLink={false} />
           </div>
           <div className="text-[11px] font-mono uppercase tracking-[0.25em] text-white/50">
             Administrative Portal

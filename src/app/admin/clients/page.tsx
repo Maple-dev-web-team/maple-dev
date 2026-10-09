@@ -235,6 +235,7 @@ export default function AdminClientsPage() {
                 currentPublicId={form.logo_public_id}
                 folder="maple-consulting/clients"
                 aspectRatio="aspect-[16/9]"
+                objectFit="contain"
                 onUploadSuccess={({ url, public_id }) => {
                   setForm((prev) => ({
                     ...prev,
